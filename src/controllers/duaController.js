@@ -44,3 +44,37 @@ exports.getDuasByCategory = async (req, res) => {
   }
 };
 
+// Get all duas by subcategory ID
+exports.getDuasBySubcategory = async (req, res) => {
+  try {
+    const { subcat_id } = req.params; // Extract subcategory ID from the route parameters
+
+    // Find the subcategory by ID
+    const subcategory = await Subcategory.findByPk(subcat_id);
+
+    if (!subcategory) {
+      return res.status(404).json({ message: 'Subcategory not found' });
+    }
+
+    // Get all duas related to the subcategory
+    const duas = await Dua.findAll({
+      where: { subcat_id },
+      include: [
+        {
+          model: Subcategory,
+          attributes: ['subcat_name_bn', 'subcat_name_en'],
+        },
+      ],
+    });
+
+    if (duas.length === 0) {
+      return res.status(404).json({ message: 'No duas found for this subcategory' });
+    }
+
+    return res.status(200).json({ duas });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error });
+  }
+};
+
