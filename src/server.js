@@ -11,7 +11,7 @@ const port = process.env.PORT || 8000
 // Middleware
 app.use(cors({
     origin: [
-        "https://duaruqyah-frontend-amber.vercel.app",
+        "https://duaruqyah-frontend-two.vercel.app",
         "http://localhost:3000"
     ],
     credentials: true,
