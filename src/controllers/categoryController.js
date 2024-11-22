@@ -1,4 +1,5 @@
 const { Category } = require('../models/associations');  // Import the models
+const { Op } = require('sequelize');
 
 // Create a new category
 exports.createCategory = async (req, res) => {
@@ -112,3 +113,34 @@ exports.deleteCategory = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error });
   }
 };
+
+// Search categories by name
+exports.searchCategoriesByName = async (req, res) => {
+  try {
+    const { name } = req.query; // Extract name from query parameters
+
+    if (!name) {
+      return res.status(400).json({ message: 'Search term is required' });
+    }
+
+    // Find categories that match the name (partial match)
+    const categories = await Category.findAll({
+      where: {
+        [Op.or]: [
+          { cat_name_bn: { [Op.like]: `%${name}%` } }, // Partial match for Bangla name
+          { cat_name_en: { [Op.like]: `%${name}%` } }, // Partial match for English name
+        ],
+      },
+    });
+
+    if (categories.length === 0) {
+      return res.status(404).json({ message: 'No matching categories found' });
+    }
+
+    return res.status(200).json({ categories });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error });
+  }
+};
+
